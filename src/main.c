@@ -3,7 +3,7 @@
 #define row 8
 #define column 8
 
-// Зручно винести номери фігур в окремі константи
+
 enum {
     TYPE_EMPTY = 0,
     TYPE_PAWN = 1,
@@ -96,8 +96,54 @@ void out()
     printf("\n\n");
 }
 
+int cordfinder(int n, char temp)
+{
+    return (n-1)*row+temp-97;
+}
+// Надо получить ходы, проверь правильность, записать, поменять сторону хода
+void move()
+{
+    while(1)
+    {
+        int startcord, endcord;
+        printf("\n Enter your move(for example e2e4):");
+        char spos[3], epos[3];
+        scanf("%2s%2s", spos, epos);
+        //printf("%s", spos);
+        char temp=spos[0];
+        int n=spos[1]-'0';
+        int f1=0, f2=0;
+        for(int i=1; i<=8; i++)
+            if(n==i)
+                f1=1;
+        for(char i='a'; i<='h'; i++)
+            if(temp==i)
+                f2=1;
+        if(f1==1 && f2==1)
+            startcord=cordfinder(n, temp);
+        else
+            continue;
+        temp=epos[0];
+        n=epos[1]-'0';
+        f1=0;
+        f2=0;
+        for(int i=1; i<=8l; i++)
+            if(n==i)
+                f1=1;
+        for(char i='a'; i<='h'; i++)
+            if(temp==i)
+                f2=1;
+        if(f1==1 && f2==1)
+            endcord=cordfinder(n, temp);
+        else
+            continue;
+        printf("start cord=%i, end cord=%i", startcord, endcord);
+    }
+}
+
 int main()
 {
     out();
+    move();
     return 0;
 }
