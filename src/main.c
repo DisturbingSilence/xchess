@@ -3,7 +3,6 @@
 #define row 8
 #define column 8
 
-// Зручно винести номери фігур в окремі константи
 enum {
     TYPE_EMPTY = 0,
     TYPE_PAWN = 1,
@@ -51,25 +50,25 @@ char getPieceChar(ChessPiece p) {
 
     char c;
     switch(type) {
-        case TYPE_PAWN: 
-            c = 'P'; 
+        case TYPE_PAWN:
+            c = 'P';
             break;
-        case TYPE_KNIGHT: 
+        case TYPE_KNIGHT:
             c = 'N';
             break;
         case TYPE_BISHOP:
-            c = 'B'; 
+            c = 'B';
             break;
-        case TYPE_ROOK:   
-            c = 'R'; 
+        case TYPE_ROOK:
+            c = 'R';
             break;
-        case TYPE_QUEEN:  
-            c = 'Q'; 
+        case TYPE_QUEEN:
+            c = 'Q';
             break;
-        case TYPE_KING:   
-            c = 'K'; 
+        case TYPE_KING:
+            c = 'K';
             break;
-        default: 
+        default:
             return '-';
     }
     return c;
@@ -80,7 +79,7 @@ void out()
     printf("\n   ");
     for(char i='a'; i<='h'; i++) printf("%c ", i);
     printf("\n");
-    
+
     for(int i=0; i<row; i++)
     {
         printf("%i  ", 8-i);
@@ -90,7 +89,7 @@ void out()
         }
         printf(" %i\n", 8-i);
     }
-    
+
     printf("   ");
     for(char i='a'; i<='h'; i++) printf("%c ", i);
     printf("\n\n");
