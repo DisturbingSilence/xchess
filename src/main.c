@@ -1,9 +1,9 @@
 #include <stdio.h>
-
 #define row 8
 #define column 8
 
-enum {
+enum
+{
     TYPE_EMPTY = 0,
     TYPE_PAWN = 1,
     TYPE_KNIGHT = 2,
@@ -32,7 +32,8 @@ typedef enum
     BLACK_KING   = (TYPE_KING << 1) | 1,
 } ChessPiece;
 
-ChessPiece A[64] = {
+ChessPiece A[64] =
+{
     BLACK_ROOK, BLACK_KNIGHT, BLACK_BISHOP, BLACK_QUEEN, BLACK_KING, BLACK_BISHOP, BLACK_KNIGHT, BLACK_ROOK,
     BLACK_PAWN, BLACK_PAWN, BLACK_PAWN, BLACK_PAWN, BLACK_PAWN, BLACK_PAWN, BLACK_PAWN, BLACK_PAWN,
     EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY,
@@ -43,33 +44,35 @@ ChessPiece A[64] = {
     WHITE_ROOK, WHITE_KNIGHT, WHITE_BISHOP, WHITE_QUEEN, WHITE_KING, WHITE_BISHOP, WHITE_KNIGHT, WHITE_ROOK
 };
 
-char getPieceChar(ChessPiece p) {
+char getPieceChar(ChessPiece p)
+{
     if (p == EMPTY) return '.';
     int type = (p >> 1);
     int isBlack = p & 1;
 
     char c;
-    switch(type) {
-        case TYPE_PAWN:
-            c = 'P';
-            break;
-        case TYPE_KNIGHT:
-            c = 'N';
-            break;
-        case TYPE_BISHOP:
-            c = 'B';
-            break;
-        case TYPE_ROOK:
-            c = 'R';
-            break;
-        case TYPE_QUEEN:
-            c = 'Q';
-            break;
-        case TYPE_KING:
-            c = 'K';
-            break;
-        default:
-            return '-';
+    switch(type)
+    {
+    case TYPE_PAWN:
+        c = 'P';
+        break;
+    case TYPE_KNIGHT:
+        c = 'N';
+        break;
+    case TYPE_BISHOP:
+        c = 'B';
+        break;
+    case TYPE_ROOK:
+        c = 'R';
+        break;
+    case TYPE_QUEEN:
+        c = 'Q';
+        break;
+    case TYPE_KING:
+        c = 'K';
+        break;
+    default:
+        return '-';
     }
     return c;
 }
@@ -94,9 +97,35 @@ void out()
     for(char i='a'; i<='h'; i++) printf("%c ", i);
     printf("\n\n");
 }
+// сделать базовый принцип ходьбы фигур
+// функция приема координат фигуры и места х у
+
+int LogicPAWN(int x,int y)
+{
+    if(getPieceChar(A[x])!='P')
+        return 0;
+    if((A[x] & 1) == 0)
+    {
+        if((x-16==y || x-8==y) && getPieceChar(A[y])=='.')
+            return 1;
+            if((x-7==y && getPieceChar(A[y])!='.') || (x-9==y && getPieceChar(A[y])!='.'))
+                return 1;
+                return 0;
+            }
+    else
+    {
+        if((x+16==y || x+8==y) && getPieceChar(A[y])=='.')
+            return 1;
+            if((x+9==y && getPieceChar(A[y])!='.') || (x+7==y && getPieceChar(A[y])!='.'))
+                return 1;
+                return 0;
+            }
+    return 0;
+}
 
 int main()
 {
     out();
+    printf("\n\n%d",LogicPAWN(0,7));
     return 0;
 }
