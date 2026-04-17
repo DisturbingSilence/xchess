@@ -98,7 +98,7 @@ void out()
 
 int cordfinder(int n, char temp)
 {
-    return (n-1)*row+temp-97;
+    return (8-n)*row+(temp-'a');
 }
 // Надо получить ходы, проверь правильность, записать, поменять сторону хода
 void move()
