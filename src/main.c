@@ -109,27 +109,36 @@ void out()
 // сделать базовый принцип ходьбы фигур
 // функция приема координат фигуры и места х у
 
+int Color(ChessPiece p)
+{
+    return (p & 1);
+}
+
 int LogicPAWN(int x,int y)
 {
-    if(getPieceChar(A[x])!='P')
+    if(A[x]!=WHITE_PAWN && A[x]!=BLACK_PAWN)
         return 0;
-    if((A[x] & 1) == 0)
+
+    if(A[x]==WHITE_PAWN)
     {
-        if(((x-16==y || x-8==y) && getPieceChar(A[y])=='.') && ((x/7!=7 && (x-y)/8!=2) || (x/7==7)))
+        if((x-8==y) && A[y]==EMPTY)
             return 1;
-        if((x-7==y && getPieceChar(A[y])!='.') || (x-9==y && getPieceChar(A[y])!='.'))
+        if((x-16==y) && A[y]==EMPTY && A[x-8]==EMPTY && x/8==6)
             return 1;
+        if(((x-7==y) || (x-9==y)) && A[y]!=EMPTY && Color(A[y])!=0 && x/8-y/8==1)
+            return 2;
         return 0;
     }
     else
     {
-        if(((x+16==y || x+8==y) && getPieceChar(A[y])=='.') &&((x/7!=1 && (y-x)/8!=2) || (x/7==1)))
+        if((x+8==y) && A[y]==EMPTY)
             return 1;
-        if((x+9==y && getPieceChar(A[y])!='.') || (x+7==y && getPieceChar(A[y])!='.'))
+        if((x+16==y) && A[y]==EMPTY && A[x+8]==EMPTY && x/8==1)
             return 1;
+        if(((x+7==y) || (x+9==y)) && A[y]!=EMPTY && Color(A[y])!=1 && y/8-x/8==1)
+            return 2;
         return 0;
     }
-    return 0;
 }
 
 int replace(int x, int y)
@@ -138,21 +147,69 @@ int replace(int x, int y)
     A[x]=EMPTY;
 }
 
-int Figaro(int x, int y)
+int Figaro(int x, int y,int B1_or_W0)
 {
-    char c=getPieceChar(A[x]);
-    switch (c)
+    int type = (A[x] >> 1);
+    switch(type)
     {
-    case 'P':
-    {
-        if (LogicPAWN(x,y)==1)
-        {
+    case TYPE_PAWN:
+        if (LogicPAWN(x,y))
             replace(x,y);
-            return 1;
-        }
-    }
+        else
+            return 0;
+        break;
+    case TYPE_KNIGHT:
+        break;
+    case TYPE_BISHOP:
+        break;
+    case TYPE_ROOK:
+        break;
+    case TYPE_QUEEN:
+        break;
+    case TYPE_KING:
+        break;
     default:
         return 0;
+    }
+    int p[64];
+    for(int i=0; i<64; i++)
+        p[i]=0;
+    for(int i=0; i<64; i++)
+    {
+        if(A[i]==EMPTY || Color(A[i])!=B1_or_W0)
+            continue;
+        type = (A[i] >> 1);
+        switch(type)
+        {
+        case TYPE_PAWN:
+            for(int j=0; j<64; j++)
+            {
+                int a=LogicPAWN(i,j);
+                if(a!=0 && p[j]!=2)
+                    p[j]=a;
+            }
+            break;
+        case TYPE_KNIGHT:
+            break;
+        case TYPE_BISHOP:
+            break;
+        case TYPE_ROOK:
+            break;
+        case TYPE_QUEEN:
+            break;
+        case TYPE_KING:
+            break;
+        default:
+            return 0;
+        }
+    }
+    for(int i=0; i<8; i++)
+    {
+        printf("\n");
+        for(int j=0; j<8; j++)
+        {
+            printf("%d ",p[i*row+j]);
+        }
     }
 }
 
@@ -165,7 +222,6 @@ void move()
 {
     while(1)
     {
-        system("cls");
         out();
         int startcord, endcord;
         printf("\n Enter your move(for example e2e4):");
@@ -199,8 +255,9 @@ void move()
             endcord=cordfinder(n, temp);
         else
             continue;
+        system("cls");
         printf("start cord=%i, end cord=%i", startcord, endcord);
-        Figaro(startcord,endcord);
+        Figaro(startcord,endcord,Color(A[startcord]));
     }
 }
 
@@ -209,3 +266,4 @@ int main()
     move();
     return 0;
 }
+
