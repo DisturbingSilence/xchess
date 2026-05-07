@@ -7,6 +7,13 @@
 #define RESET "\033[0m"
 #define BROWN "\033[38;5;94m"
 
+typedef struct listmove
+{
+    int startcord;
+    int endcord;
+    struct listmove* ptr;
+}listmove;
+
 enum
 {
     TYPE_EMPTY = 0,
@@ -52,9 +59,8 @@ ChessPiece A[64] =
 char getPieceChar(ChessPiece p)
 {
     if (p == EMPTY) return '.';
-    int type = (p >> 1);
+    unsigned int type = (p >> 1);
     int isBlack = p & 1;
-
     char c;
     switch(type)
     {
@@ -82,7 +88,6 @@ char getPieceChar(ChessPiece p)
     return c;
 }
 
-//displaying a chessboard on the screen
 void out()
 {
     printf("\n   ");
@@ -107,65 +112,125 @@ void out()
     for(char i='a'; i<='h'; i++) printf(BROWN"%c "RESET, i);
     printf("\n\n");
 }
-// Checking the logic of pawn movement
-// Allows for a move of 1 or 2 squares, as well as diagonal capture
-// BUG!!! white pawn can eat white pawn 
+
+int Color(ChessPiece p)
+{
+    return (p & 1);
+}
+
 int LogicPAWN(int x,int y)
 {
-    if(getPieceChar(A[x])!='P')
+    if(A[x]!=WHITE_PAWN && A[x]!=BLACK_PAWN)
         return 0;
-    if((A[x] & 1) == 0)
+
+    if(A[x]==WHITE_PAWN)
     {
-        if(((x-16==y || x-8==y) && getPieceChar(A[y])=='.') && ((x/7!=7 && (x-y)/8!=2) || (x/7==7)))
+        if((x-8==y) && A[y]==EMPTY)
             return 1;
-        if((x-7==y && getPieceChar(A[y])!='.') || (x-9==y && getPieceChar(A[y])!='.'))
+        if((x-16==y) && A[y]==EMPTY && A[x-8]==EMPTY && x/8==6)
             return 1;
+        if(((x-7==y) || (x-9==y)) && A[y]!=EMPTY && Color(A[y])!=0 && x/8-y/8==1)
+            return 2;
         return 0;
     }
     else
     {
-        if(((x+16==y || x+8==y) && getPieceChar(A[y])=='.') &&((x/7!=1 && (y-x)/8!=2) || (x/7==1)))
+        if((x+8==y) && A[y]==EMPTY)
             return 1;
-        if((x+9==y && getPieceChar(A[y])!='.') || (x+7==y && getPieceChar(A[y])!='.'))
+        if((x+16==y) && A[y]==EMPTY && A[x+8]==EMPTY && x/8==1)
             return 1;
+        if(((x+7==y) || (x+9==y)) && A[y]!=EMPTY && Color(A[y])!=1 && y/8-x/8==1)
+            return 2;
         return 0;
     }
-    return 0;
 }
 
-int replace(int x, int y)
+void replace(int x, int y)
 {
     A[y]=A[x];
     A[x]=EMPTY;
 }
 
-int Figaro(int x, int y)
+int Figaro(int x, int y,int B1_or_W0)
 {
-    char c=getPieceChar(A[x]);
-    switch (c)
+    unsigned int type = (A[x] >> 1);
+    switch(type)
     {
-    case 'P':
-    {
-        if (LogicPAWN(x,y)==1)
-        {
+    case TYPE_PAWN:
+        if (LogicPAWN(x,y))
             replace(x,y);
-            return 1;
-        }
-    }
+        else
+            return 0;
+        break;
+    case TYPE_KNIGHT:
+        break;
+    case TYPE_BISHOP:
+        break;
+    case TYPE_ROOK:
+        break;
+    case TYPE_QUEEN:
+        break;
+    case TYPE_KING:
+        break;
     default:
         return 0;
     }
+    int p[64];
+    for(int i=0; i<64; i++)
+        p[i]=0;
+    for(int i=0; i<64; i++)
+    {
+        if(A[i]==EMPTY || Color(A[i])!=B1_or_W0)
+            continue;
+        type = (A[i] >> 1);
+        switch(type)
+        {
+        case TYPE_PAWN:
+            for(int j=0; j<64; j++)
+            {
+                int a=LogicPAWN(i,j);
+                if(a!=0 && p[j]!=2)
+                    p[j]=a;
+            }
+            break;
+        case TYPE_KNIGHT:
+            break;
+        case TYPE_BISHOP:
+            break;
+        case TYPE_ROOK:
+            break;
+        case TYPE_QUEEN:
+            break;
+        case TYPE_KING:
+            break;
+        default:
+            return 0;
+        }
+    }
+    for(int i=0; i<8; i++)
+    {
+        printf("\n");
+        for(int j=0; j<8; j++)
+        {
+            printf("%d ",p[i*row+j]);
+        }
+    }
+    return 0;
 }
-
+//returns the coordinates of the move
 int cordfinder(int n, char temp)
 {
     return (8-n)*row+(temp-'a');
 }
-//spos using for memoring start position of move, epos for end position of move
-
-int move(char *spos, char *epos)
+//checks the moves and passes them on
+void move()
 {
+        out();
         int startcord, endcord;
+        printf("\n Enter your move(for example e2e4):");
+        char spos[3], epos[3];
+        scanf("%2s%2s", spos, epos);
+        //printf("%s", spos);
         char temp=spos[0];
         int n=spos[1]-'0';
         int f1=0, f2=0;
@@ -177,8 +242,6 @@ int move(char *spos, char *epos)
                 f2=1;
         if(f1==1 && f2==1)
             startcord=cordfinder(n, temp);
-        else
-            return 0;
         temp=epos[0];
         n=epos[1]-'0';
         f1=0;
@@ -191,20 +254,125 @@ int move(char *spos, char *epos)
                 f2=1;
         if(f1==1 && f2==1)
             endcord=cordfinder(n, temp);
-        else
-            return 0;
-        Figaro(startcord,endcord);
+        //printf("start cord=%i, end cord=%i", startcord, endcord);
+        Figaro(startcord,endcord,Color(A[startcord]));
+}
+//creating a list and filling it with data
+void createlist(listmove** BegL, listmove** EndL, int cord1, int cord2)
+{
+    listmove* temp=(listmove*)malloc(sizeof(listmove));
+    temp->startcord=cord1;
+    temp->endcord=cord2;
+    temp->ptr=NULL;
+    if((*BegL)==NULL)  
+        (*BegL)=temp;
+    else
+        (*EndL)->ptr=temp;
+    (*EndL)=temp;
+}
+//basic list cleaning
+void freelist(listmove** BegL)
+{
+    listmove* temp=(*BegL);
+    while(temp!=NULL)
+    {
+        listmove* next=temp;
+        temp=temp->ptr;
+        free(next);
+    }
+    (*BegL)=NULL;
+    free(temp);
+}
+
+//You need to get the coordinates of a figure,
+//check what kind of figure is based on the coordinates,
+//access the necessary logic, 
+//add it to the list
+//implemented so far only for the pawn
+//!!! It's buggy now and doesn't update moves. !!!
+void gen(int cord, listmove** BegL, listmove** EndL)
+{
+    if(A[cord] & 0)
+    {
+        switch(getPieceChar(A[cord]))
+          case 'P':
+            {
+                if(LogicPAWN(cord, cord-8))
+                {
+                    createlist(BegL, EndL, cord, cord-8);
+                }
+                if(LogicPAWN(cord, cord-16))
+                {
+                    createlist(BegL, EndL, cord, cord-16);
+                }
+                if(LogicPAWN(cord, cord-7))
+                {
+                    createlist(BegL, EndL, cord, cord-7);
+                }
+                if(LogicPAWN(cord, cord-9))
+                {
+                    createlist(BegL, EndL, cord, cord-8);
+                }
+            }
+    }
+    else
+    {
+        switch(getPieceChar(A[cord]))
+          case 'P':
+            {
+                if(LogicPAWN(cord, cord+8))
+                {
+                    createlist(BegL, EndL, cord, cord+8);
+                }
+                if(LogicPAWN(cord, cord+16))
+                {
+                    createlist(BegL, EndL, cord, cord+16);
+                }
+                if(LogicPAWN(cord, cord+7))
+                {
+                    createlist(BegL, EndL, cord, cord+7);
+                }
+                if(LogicPAWN(cord, cord+9))
+                {
+                    createlist(BegL, EndL, cord, cord+8);
+                }
+            }
+    }
+}
+
+//converts coordinates into algebraic notation
+void notacia(char* buf, int cord, int endcord)
+{
+    //m is letter, n is number
+    int m=cord%8;
+    int n1=(cord/8)+1;
+    char letter1=(char)m+'A';
+    m=endcord%8;
+    char letter2=(char)m+'A';
+    int n2=(endcord/8)+1;
+    sprintf(buf, "%c%i%c%i", letter1, n1, letter2, n2);
+    return;
 }
 
 int main()
 {
-    do{
-        out();
-        printf("\n Enter your move(for example e2e4):");
-        char spos[3], epos[3];
-        scanf("%2s%2s", spos, epos);
-        if(move(spos, epos)==0)
-            continue;
-    }while(1);
+    while(1)
+    {
+    listmove *BegL=NULL, *EndL=NULL;
+    for(int i=0; i<64; i++)
+    {
+        gen(i, &BegL, &EndL);
+    }
+    listmove* temp=BegL;
+    while(temp!=NULL)
+    {
+        char buf[5];
+        notacia(buf, temp->startcord, temp->endcord);
+        printf("%s\n", buf);
+        temp=temp->ptr;
+    }
+    freelist(&BegL);
+    move();
+}
     return 0;
 }
