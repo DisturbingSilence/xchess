@@ -44,8 +44,7 @@ typedef enum
     BLACK_KING   = (TYPE_KING << 1) | 1,
 } ChessPiece;
 
-ChessPiece A[64] =
-{
+ChessPiece A[64] = {
     BLACK_ROOK, BLACK_KNIGHT, BLACK_BISHOP, BLACK_QUEEN, BLACK_KING, BLACK_BISHOP, BLACK_KNIGHT, BLACK_ROOK,
     BLACK_PAWN, BLACK_PAWN, BLACK_PAWN, BLACK_PAWN, BLACK_PAWN, BLACK_PAWN, BLACK_PAWN, BLACK_PAWN,
     EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY, EMPTY,
@@ -222,6 +221,7 @@ int cordfinder(int n, char temp)
 {
     return (8-n)*row+(temp-'a');
 }
+
 //checks the moves and passes them on
 void move()
 {
