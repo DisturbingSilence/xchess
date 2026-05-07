@@ -141,44 +141,264 @@ int LogicPAWN(int x,int y)
     }
 }
 
+int LogicROOK(int x,int y)
+{
+    if(A[x]!=WHITE_ROOK && A[x]!=BLACK_ROOK)
+        return 0;
+
+    else
+    {
+        if(x/8!=y/8 && abs(x-y)%8==0 && (A[y]==EMPTY || Color(A[y])!=Color(A[x])))
+        {
+            if(x<y)
+            {
+                for(int i=x+8; i!=y; i=i+8)
+                    if(A[i]!=EMPTY)
+                        return 0;
+            }
+            if(y<x)
+            {
+                for(int i=x-8; i!=y; i=i-8)
+                    if(A[i]!=EMPTY)
+                        return 0;
+            }
+            if(A[y]==EMPTY)
+                return 1;
+            return 2;
+        }
+        if(y/8==x/8 && (A[y]==EMPTY || Color(A[y])!=Color(A[x])) )
+        {
+            if(x<y)
+            {
+                for(int i=x+1; i!=y; i++)
+                    if(A[i]!=EMPTY)
+                        return 0;
+            }
+            if(y<x)
+            {
+                for(int i=x-1; i!=y; i--)
+                    if(A[i]!=EMPTY)
+                        return 0;
+            }
+            if(A[y]==EMPTY)
+                return 1;
+            return 2;
+        }
+        return 0;
+    }
+}
+
+int LogicKNIGHT(int x,int y)
+{
+    if(A[x]!=WHITE_KNIGHT && A[x]!=BLACK_KNIGHT)
+        return 0;
+    if((y==x-17 || y==x-15  || y==x+17 || y==x+15) && abs(x/8-y/8)==2 || ((y==x+10 || y==x-6)
+            && x/8==(x+2)/8 || (y==x-10 || y==x+6) && x/8==(x-2)/8) && abs(x/8-y/8)==1)
+    {
+        if(A[y]==EMPTY)
+            return 1;
+        if(Color(A[y])!=Color(A[x]))  return 2;
+    }
+    return 0;
+}
+
+int LogicBISHOP(int x,int y)
+{
+    if(A[x]!=WHITE_BISHOP && A[x]!=BLACK_BISHOP)
+        return 0;
+    if(y<x && y/8!=x/8 && (x-7)%8!=0)
+        for(int i=x-7; i>=0; i=i-7)
+        {
+            if(i==y)
+            {
+                if(A[y]!=EMPTY)
+                    if(Color(A[y])!=Color(A[x]))
+                        return 2;
+                    else return 0;
+                return 1;
+            }
+            if(A[i]!=EMPTY)
+                break;
+            if((i-7)%8==0)
+                break;
+        }
+    if(y>x && y/8!=x/8 && (x-7)%8!=0)
+        for(int i=x+9; i<=63; i=i+9)
+        {
+            if(i==y)
+            {
+                if(A[y]!=EMPTY)
+                    if(Color(A[y])!=Color(A[x]))
+                        return 2;
+                    else return 0;
+                return 1;
+            }
+            if(A[i]!=EMPTY)
+                break;
+            if((i-7)%8==0)
+                break;
+        }
+    if(y<x && y/8!=x/8 && x%8!=0)
+        for(int i=x-9; i>=0; i=i-9)
+        {
+            if(i==y)
+            {
+                if(A[y]!=EMPTY)
+                    if(Color(A[y])!=Color(A[x]))
+                        return 2;
+                    else return 0;
+                return 1;
+            }
+            if(A[i]!=EMPTY)
+                break;
+            if(i%8==0)
+                break;
+        }
+    if(y>x && y/8!=x/8 && x%8!=0)
+        for(int i=x+7; i<=63; i=i+7)
+        {
+            if(i==y)
+            {
+                if(A[y]!=EMPTY)
+                    if(Color(A[y])!=Color(A[x]))
+                        return 2;
+                    else return 0;
+                return 1;
+            }
+            if(A[i]!=EMPTY)
+                break;
+            if(i%8==0)
+                break;
+        }
+    return 0;
+}
+
+int LogicQUEEN(int x,int y)
+{
+    if(A[x]!=WHITE_QUEEN && A[x]!=BLACK_QUEEN)
+        return 0;
+    if(y<x && y/8!=x/8 && (x-7)%8!=0)
+        for(int i=x-7; i>=0; i=i-7)
+        {
+            if(i==y)
+            {
+                if(A[y]!=EMPTY)
+                    if(Color(A[y])!=Color(A[x]))
+                        return 2;
+                    else return 0;
+                return 1;
+            }
+            if(A[i]!=EMPTY)
+                break;
+            if((i-7)%8==0)
+                break;
+        }
+    if(y>x && y/8!=x/8 && (x-7)%8!=0)
+        for(int i=x+9; i<=63; i=i+9)
+        {
+            if(i==y)
+            {
+                if(A[y]!=EMPTY)
+                    if(Color(A[y])!=Color(A[x]))
+                        return 2;
+                    else return 0;
+                return 1;
+            }
+            if(A[i]!=EMPTY)
+                break;
+            if((i-7)%8==0)
+                break;
+        }
+    if(y<x && y/8!=x/8 && x%8!=0)
+        for(int i=x-9; i>=0; i=i-9)
+        {
+            if(i==y)
+            {
+                if(A[y]!=EMPTY)
+                    if(Color(A[y])!=Color(A[x]))
+                        return 2;
+                    else return 0;
+                return 1;
+            }
+            if(A[i]!=EMPTY)
+                break;
+            if(i%8==0)
+                break;
+        }
+    if(y>x && y/8!=x/8 && x%8!=0)
+        for(int i=x+7; i<=63; i=i+7)
+        {
+            if(i==y)
+            {
+                if(A[y]!=EMPTY)
+                    if(Color(A[y])!=Color(A[x]))
+                        return 2;
+                    else return 0;
+                return 1;
+            }
+            if(A[i]!=EMPTY)
+                break;
+            if(i%8==0)
+                break;
+        }
+    if(x/8!=y/8 && abs(x-y)%8==0 && (A[y]==EMPTY || Color(A[y])!=Color(A[x])))
+    {
+        if(x<y)
+        {
+            for(int i=x+8; i!=y; i=i+8)
+                if(A[i]!=EMPTY)
+                    return 0;
+        }
+        if(y<x)
+        {
+            for(int i=x-8; i!=y; i=i-8)
+                if(A[i]!=EMPTY)
+                    return 0;
+        }
+        if(A[y]==EMPTY)
+            return 1;
+        return 2;
+    }
+    if(y/8==x/8 && (A[y]==EMPTY || Color(A[y])!=Color(A[x])) )
+    {
+        if(x<y)
+        {
+            for(int i=x+1; i!=y; i++)
+                if(A[i]!=EMPTY)
+                    return 0;
+        }
+        if(y<x)
+        {
+            for(int i=x-1; i!=y; i--)
+                if(A[i]!=EMPTY)
+                    return 0;
+        }
+        if(A[y]==EMPTY)
+            return 1;
+        return 2;
+    }
+    return 0;
+}
+
+/*int LogicKING(int x,int y)
+{
+    if(A[x]!=WHITE_KING && A[x]!=BLACK_KING)
+        return 0;
+    if(y==x-9 && (x-8)>=0 && (x-9)/8==(x-8)/8
+}*/
+
 int replace(int x, int y)
 {
     A[y]=A[x];
     A[x]=EMPTY;
 }
 
-int Figaro(int x, int y,int B1_or_W0)
+int* KingMove(int B1_or_W0, int i)
 {
-    int type = (A[x] >> 1);
-    switch(type)
-    {
-    case TYPE_PAWN:
-        if (LogicPAWN(x,y))
-            replace(x,y);
-        else
-            return 0;
-        break;
-    case TYPE_KNIGHT:
-        break;
-    case TYPE_BISHOP:
-        break;
-    case TYPE_ROOK:
-        break;
-    case TYPE_QUEEN:
-        break;
-    case TYPE_KING:
-        break;
-    default:
-        return 0;
-    }
-    int p[64];
-    for(int i=0; i<64; i++)
-        p[i]=0;
-    for(int i=0; i<64; i++)
-    {
-        if(A[i]==EMPTY || Color(A[i])!=B1_or_W0)
-            continue;
-        type = (A[i] >> 1);
+    int type = (A[i] >> 1);
+    int* p=(int*)malloc(sizeof(int)*64);
+    for(int b=0; b<64; b++)
+        p[b]=0;
         switch(type)
         {
         case TYPE_PAWN:
@@ -190,19 +410,42 @@ int Figaro(int x, int y,int B1_or_W0)
             }
             break;
         case TYPE_KNIGHT:
+            for(int j=0; j<64; j++)
+            {
+                int a=LogicKNIGHT(i,j);
+                if(a!=0 && p[j]!=2)
+                    p[j]=a;
+            }
             break;
         case TYPE_BISHOP:
+            for(int j=0; j<64; j++)
+            {
+                int a=LogicBISHOP(i,j);
+                if(a!=0 && p[j]!=2)
+                    p[j]=a;
+            }
             break;
         case TYPE_ROOK:
+            for(int j=0; j<64; j++)
+            {
+                int a=LogicROOK(i,j);
+                if(a!=0 && p[j]!=2)
+                    p[j]=a;
+            }
             break;
         case TYPE_QUEEN:
+            for(int j=0; j<64; j++)
+            {
+                int a=LogicQUEEN(i,j);
+                if(a!=0 && p[j]!=2)
+                    p[j]=a;
+            }
             break;
         case TYPE_KING:
             break;
         default:
             return 0;
         }
-    }
     for(int i=0; i<8; i++)
     {
         printf("\n");
@@ -210,6 +453,48 @@ int Figaro(int x, int y,int B1_or_W0)
         {
             printf("%d ",p[i*row+j]);
         }
+    }
+    return p;
+}
+
+int Figaro(int x, int y)
+{
+    int type = (A[x] >> 1);
+    switch(type)
+    {
+    case TYPE_PAWN:
+        if (LogicPAWN(x,y))
+            replace(x,y);
+        else
+            return 0;
+        break;
+    case TYPE_KNIGHT:
+        if (LogicKNIGHT(x,y))
+            replace(x,y);
+        else
+            return 0;
+        break;
+    case TYPE_BISHOP:
+        if (LogicBISHOP(x,y))
+            replace(x,y);
+        else
+            return 0;
+        break;
+    case TYPE_ROOK:
+        if (LogicROOK(x,y))
+            replace(x,y);
+        else
+            return 0;
+        break;
+    case TYPE_QUEEN:
+        if (LogicQUEEN(x,y))
+            replace(x,y);
+        else
+        break;
+    case TYPE_KING:
+        break;
+    default:
+        return 0;
     }
 }
 
@@ -257,7 +542,9 @@ void move()
             continue;
         system("cls");
         printf("start cord=%i, end cord=%i", startcord, endcord);
-        Figaro(startcord,endcord,Color(A[startcord]));
+        Figaro(startcord,endcord);
+        int* p=KingMove(Color(A[startcord]),endcord);
+        free(p);
     }
 }
 
