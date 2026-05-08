@@ -393,7 +393,7 @@ int replace(int x, int y)
     A[x]=EMPTY;
 }
 
-int* KingMove(int B1_or_W0, int i)
+int* KingMove( int i)
 {
     int type = (A[i] >> 1);
     int* p=(int*)malloc(sizeof(int)*64);
@@ -442,6 +442,10 @@ int* KingMove(int B1_or_W0, int i)
             }
             break;
         case TYPE_KING:
+            for(int j=0; j<64; j++)
+            {
+                    p[j]=0;
+            }
             break;
         default:
             return 0;
@@ -454,6 +458,7 @@ int* KingMove(int B1_or_W0, int i)
             printf("%d ",p[i*row+j]);
         }
     }
+    printf("\n");
     return p;
 }
 
@@ -502,6 +507,45 @@ int cordfinder(int n, char temp)
 {
     return (8-n)*row+(temp-'a');
 }
+/*
+This function returns possible moves for both black and white.
+First comes the position, then -1,
+then possible moves, then -1 again and repeats further starting from the position
+and at the end there is -2 indicating that this is the end.
+[pos],[-1],[0 0 0 0 0 0 0 0 , [-1],....,[-2]
+            0 0 0 0 0 0 0 0
+            0 0 0 0 0 0 0 0
+            0 0 0 0 0 0 0 0
+            0 0 0 0 0 0 0 0
+            0 0 0 0 2 1 2 0
+            0 0 0 0 0 0 0 0
+            0 0 0 0 0 0 0 0]
+on the field of possible moves 1 is a normal move, 2 is a capture of a piece*/
+int* Rapsodia()
+{
+    int Ar[33], k=0;
+    for(int i=0;i<64;i++)
+        if(A[i]!=EMPTY)
+            Ar[k++]=i;
+    Ar[k]=-1;
+    int* Arr=(int*)malloc(sizeof(int)*k*67+sizeof(int));
+    for(int i=0; Ar[i]!=-1; i++)
+    {
+        Arr[i*67]=Ar[i];
+        Arr[i*67+1]=-1;
+        int* p=KingMove(Ar[i]);
+        for(int j=1;j<65;j++)
+        Arr[i*67+j]=p[j-1];
+        free(p);
+        Arr[i*67+1]=-1;
+    }
+    Arr[k*67]=-2;
+    printf("/nArr:");
+    for(int i=0;i<k*67+1;i++)
+        printf("%d",Arr[i]);
+        return(Arr);
+}
+
 // Надо получить ходы, проверь правильность, записать, поменять сторону хода
 void move()
 {
@@ -543,10 +587,13 @@ void move()
         system("cls");
         printf("start cord=%i, end cord=%i", startcord, endcord);
         Figaro(startcord,endcord);
-        int* p=KingMove(Color(A[startcord]),endcord);
-        free(p);
+        int* p=KingMove(endcord);
+        int* k=Rapsodia();
+            free(k);
+            free(p);
     }
 }
+
 
 int main()
 {
