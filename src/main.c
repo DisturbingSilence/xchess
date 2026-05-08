@@ -50,7 +50,7 @@ ChessPiece A[64] = {
 char getPieceChar(ChessPiece p) {
     if (p == EMPTY) return '.';
     int type = (p >> 1);
-    int isBlack = p & 1;
+    [[maybe_unused]]int isBlack = p & 1;
 
     char c;
     switch(type) {
@@ -77,7 +77,6 @@ char getPieceChar(ChessPiece p) {
     }
     return c;
 }
-
 void out()
 {
     printf("\n   ");
@@ -101,15 +100,28 @@ void out()
 static void resize_callback(GLFWwindow* window,int width,int height)
 {
     GraphicsContext* ctx = (GraphicsContext*)glfwGetWindowUserPointer(window);
-    graphics_on_resize(ctx,width,height);
+    gfx_on_resize(ctx,width,height);
+}
+static void mouse_click_callback(GLFWwindow* window,int button,int action,int mods)
+{
+    GraphicsContext* ctx = (GraphicsContext*)glfwGetWindowUserPointer(window);
+    gfx_on_mouse_click(ctx,button,action,mods);
+}
+static void mouse_move_callback(GLFWwindow* window,double x,double y)
+{
+    GraphicsContext* ctx = (GraphicsContext*)glfwGetWindowUserPointer(window);
+    gfx_on_mouse_move(ctx,x,y);
 }
 int main()
 {
+    u32 width = 1000,height = 800;
     glfwInit();
     glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR,4);
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR,6);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
-    GLFWwindow* window = glfwCreateWindow(800,800,"XCHESS",NULL,NULL);
+    glfwWindowHint(GLFW_TRANSPARENT_FRAMEBUFFER, GLFW_TRUE);
+    glfwWindowHint(GLFW_DECORATED,GLFW_FALSE);
+    GLFWwindow* window = glfwCreateWindow(width,height,"XCHESS",NULL,NULL);
     if(!window)
     {
         LOG_CRITICAL("Failed to create window");
@@ -117,20 +129,22 @@ int main()
         return -1;
     }
     glfwMakeContextCurrent(window);
-    glfwSetFramebufferSizeCallback(window,resize_callback);
-    GraphicsContext* gfx_ctx = graphics_startup();
+    GraphicsContext* gfx_ctx = gfx_startup(window,width,height);
     glfwSetWindowUserPointer(window,gfx_ctx);
+    glfwSetFramebufferSizeCallback(window,resize_callback);
+    glfwSetMouseButtonCallback(window,mouse_click_callback);
+    glfwSetCursorPosCallback(window,mouse_move_callback);
     while(!glfwWindowShouldClose(window))
     {
         glfwPollEvents();
 
         // here will be game logic
 
-        graphics_on_piece_move(gfx_ctx,A);
-        graphics_render(gfx_ctx);
+        gfx_on_piece_move(gfx_ctx,A);
+        gfx_render(gfx_ctx);
         glfwSwapBuffers(window);
     }
-    graphics_shutdown(gfx_ctx);
+    gfx_shutdown(gfx_ctx);
     glfwDestroyWindow(window);
     glfwTerminate();
 }
