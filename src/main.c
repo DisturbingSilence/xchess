@@ -1,5 +1,8 @@
 #include <stdlib.h>
 #include <stdio.h>
+#include "graphics.h"
+#include <GLFW/glfw3.h>
+#include "logger.h"
 #define row 8
 #define column 8
 #define RED   "\033[31m"
@@ -354,25 +357,41 @@ void notacia(char* buf, int cord, int endcord)
     return;
 }
 
+static void resize_callback(GLFWwindow* window,int width,int height)
+{
+    GraphicsContext* ctx = (GraphicsContext*)glfwGetWindowUserPointer(window);
+    graphics_on_resize(ctx,width,height);
+}
 int main()
 {
-    while(1)
+    glfwInit();
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR,4);
+    glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR,6);
+    glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+    GLFWwindow* window = glfwCreateWindow(800,800,"XCHESS",NULL,NULL);
+    if(!window)
     {
-    listmove *BegL=NULL, *EndL=NULL;
-    for(int i=0; i<64; i++)
-    {
-        gen(i, &BegL, &EndL);
+        LOG_CRITICAL("Failed to create window");
+        glfwTerminate();
+        return -1;
     }
-    listmove* temp=BegL;
-    while(temp!=NULL)
+    glfwMakeContextCurrent(window);
+    glfwSetFramebufferSizeCallback(window,resize_callback);
+    GraphicsContext* gfx_ctx = graphics_startup();
+    glfwSetWindowUserPointer(window,gfx_ctx);
+    while(!glfwWindowShouldClose(window))
     {
-        char buf[5];
-        notacia(buf, temp->startcord, temp->endcord);
-        printf("%s\n", buf);
-        temp=temp->ptr;
+        glfwPollEvents();
+
+        // here will be game logic
+
+        graphics_on_piece_move(gfx_ctx,A);
+        graphics_render(gfx_ctx);
+        glfwSwapBuffers(window);
     }
-    freelist(&BegL);
-    move();
-}
+    graphics_shutdown(gfx_ctx);
+    glfwDestroyWindow(window);
+    glfwTerminate();
     return 0;
 }
+    
