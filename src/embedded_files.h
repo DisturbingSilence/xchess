@@ -285,7 +285,7 @@ void main()
     gl_Position = positions[gl_VertexID];
     o_uv  = texcoords[gl_VertexID];
 })";
-// https://www.shadertoy.com/view/ltV3RG
+// https://www.shadertoy.com/view/wfGBWm
 static char FULLSCREEN_FRAGMENT_SOURCE[] =
 R"(
 #version 460
@@ -301,47 +301,59 @@ layout(std430, binding = 0) readonly buffer ssbo1
     mat4 ui_proj;
     uint board[64];
 };
-float hash(vec2 p) { return fract(sin(dot(p, vec2(12.9898, 78.233))) * 43758.5453123); }
+float hash(vec2 p)
+{
+    p = fract(p * vec2(123.34, 456.21));
+    p += dot(p,p + 45.32);
+    return fract(p.x * p.y);
+}
 float noise(vec2 p)
 {
-    vec2 i = floor(p);
-    vec2 f = fract(p);
+    vec2 i = floor(p),f = fract(p);
     f = f * f * (3.0 - 2.0 * f);
-    return mix(mix(hash(i + vec2(0.,0.)),
-    hash(i + vec2(1.,0.)), f.x),mix(hash(i + vec2(0.,1.)),
-    hash(i + vec2(1.,1.)),f.x),f.y);
+    return mix(mix(hash(i), hash(i + vec2(1.0, 0.0)), f.x),
+               mix(hash(i + vec2(0.0, 1.0)), hash(i + vec2(1.0, 1.0)), f.x), f.y);
 }
-float fbm(vec2 p) { return noise(p) * 0.5 + noise(p * 2) * 0.25 + noise(p * 4) * 0.125; }
+float fbm(vec2 p, int octaves)
+{
+    float v = 0,amp = 0.5;
+    for (int i = 0; i < octaves; i++)
+    {
+        v += noise(p) * amp;
+        p *= 2.5; amp *= 0.5;
+    }
+    return v;
+}
 void main()
 {
-    float aspect = resolution.x / resolution.y;
-    vec2 uv = i_uv * aspect;
-    vec4 tgt = texture(uImage, i_uv);
-    vec4 col = vec4(0);
-    float ctime = mod(uTime * 0.5, 2.5);
-    float d = (uv.x - (aspect * 0.5)) + uv.y * 0.5 + 0.5 * fbm(uv * 15.1) + (ctime * 1.3 - 1.0);
+    vec2 p = (i_uv - 0.5) * vec2(resolution.x / resolution.y, 1.0);
+    float progress = uTime * 0.25;
+    progress = progress * progress * (3.0 - 2.0 * progress);
     if(uTime > 3)
     {
-        frag_color = tgt;
+        vec4 tex = texture(uImage,i_uv);
+        frag_color = tex;
         return;
     }
-    if (d > 0.35)
-    {
-        col.rgb = clamp(col.rgb - (d - 0.35) * 10.0, 0.0, 1.0);
-    }
-    if (d > 0.47)
-    {
-        if (d < 0.5)
-        {
-            float fire_noise = noise(100.0 * uv + vec2(-uTime * 2.0, 0.0));
-            col.rgb += (d - 0.4) * 33.0 * 0.5 * (fire_noise) * vec3(1.5, 0.5, 0.0);
-            col.a = 1;
-        }
-        else
-        {
-            col = tgt;
-        }
-    }
-    frag_color = col;
+    float threshold = progress * 4.0;
+    float smudgeField = length(p) * (0.4 + fbm(p * 1.8 + 10.0, 4) * 3.2);
+    float feather = 0.15;
+    float revealMask = smoothstep(threshold - feather, threshold + feather, smudgeField);
+    revealMask = 1.0 - revealMask;
+    float waveProfile = exp(-pow(abs((smudgeField - threshold) / 0.15), 2.0));
+    vec2 warpVec = normalize(p) * waveProfile * (0.25 * (1.0 - progress));
+    vec3 spectral = vec3(1.5, 1.0, 0.5);
+    vec4 texOld = vec4(0);
+    vec4 texNew;
+    texNew.r = texture(uImage, i_uv - warpVec * spectral.r).r;
+    texNew.g = texture(uImage, i_uv - warpVec * spectral.g).g;
+    texNew.b = texture(uImage, i_uv - warpVec * spectral.b).b;
+    texNew.a = texture(uImage, i_uv - warpVec).a;
+    vec4 finalColor = mix(texOld, texNew, revealMask);
+    float highFreqNoise = fbm(p * 30.0 + uTime * 0.1, 2);
+    float filaments = pow(highFreqNoise, 4.0) * pow(waveProfile, 20.0) * 30.0;
+    finalColor.rgb += mix(texOld.rgb, texNew.rgb, 0.5) * pow(waveProfile,40.0) * 5.0;
+    finalColor.rgb += vec3(1.0) * filaments;
+    frag_color = vec4(finalColor.rgb, finalColor.a);
 })";
 #endif

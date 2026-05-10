@@ -13,4 +13,4 @@ add_executable(xchess ${SOURCES})
 target_compile_features(xchess PRIVATE c_std_23)
 target_link_libraries(xchess PRIVATE glfw glad)
 
-target_compile_options(xchess PRIVATE -g -ggdb -Wall -pedantic)
+target_compile_options(xchess PRIVATE -g -ggdb -Wall -pedantic -Wno-overlength-strings)
